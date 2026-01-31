@@ -11,13 +11,15 @@ interface ParticipantCardProps {
   isOwner: boolean
   onTaskUpdate: (field: 'today_task' | 'notes', value: string) => void
   onLeave: () => void
+  isReadOnly?: boolean
 }
 
 export function ParticipantCard({
   participant,
   isOwner,
   onTaskUpdate,
-  onLeave
+  onLeave,
+  isReadOnly = false
 }: ParticipantCardProps) {
   const joinTime = new Date(participant.join_time)
   const formattedJoinTime = joinTime.toLocaleTimeString('ko-KR', {
@@ -67,8 +69,8 @@ export function ParticipantCard({
           <TaskEditor
             value={participant.today_task || ''}
             onChange={(value) => onTaskUpdate('today_task', value)}
-            placeholder="오늘 무엇을 공부하시나요?"
-            disabled={!isOwner}
+            placeholder={isReadOnly ? '기록 없음' : '오늘 무엇을 공부하시나요?'}
+            disabled={!isOwner || isReadOnly}
             rows={3}
             maxLength={500}
           />
@@ -83,8 +85,8 @@ export function ParticipantCard({
           <TaskEditor
             value={participant.notes || ''}
             onChange={(value) => onTaskUpdate('notes', value)}
-            placeholder="공부하면서 메모를 남겨보세요"
-            disabled={!isOwner}
+            placeholder={isReadOnly ? '기록 없음' : '공부하면서 메모를 남겨보세요'}
+            disabled={!isOwner || isReadOnly}
             rows={4}
             maxLength={1000}
           />

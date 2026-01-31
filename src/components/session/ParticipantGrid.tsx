@@ -6,13 +6,15 @@ interface ParticipantGridProps {
   currentUserId?: string
   onTaskUpdate: (participantId: string, field: 'today_task' | 'notes', value: string) => void
   onLeave: (participantId: string) => void
+  isSessionActive?: boolean
 }
 
 export function ParticipantGrid({
   participants,
   currentUserId,
   onTaskUpdate,
-  onLeave
+  onLeave,
+  isSessionActive = true
 }: ParticipantGridProps) {
   if (participants.length === 0) {
     return (
@@ -28,9 +30,10 @@ export function ParticipantGrid({
         <ParticipantCard
           key={participant.id}
           participant={participant}
-          isOwner={participant.member_id === currentUserId}
+          isOwner={participant.member_id === currentUserId && isSessionActive}
           onTaskUpdate={(field, value) => onTaskUpdate(participant.id, field, value)}
           onLeave={() => onLeave(participant.id)}
+          isReadOnly={!isSessionActive}
         />
       ))}
     </div>

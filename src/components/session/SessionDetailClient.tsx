@@ -103,6 +103,8 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
 
   const isActive = session.status === 'active'
   const activeParticipants = session.participants?.filter((p) => p.is_active) || []
+  // 완료된 세션은 모든 참여자 표시, 활성 세션은 활성 참여자만
+  const displayParticipants = isActive ? activeParticipants : (session.participants || [])
 
   const date = new Date(session.date)
   const formattedDate = date.toLocaleDateString('ko-KR', {
@@ -182,9 +184,9 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-slate-400" />
               <span className="font-bold text-white">
-                {activeParticipants.length}
+                {displayParticipants.length}
               </span>
-              <span className="text-slate-400">명 참여중</span>
+              <span className="text-slate-400">{isActive ? '명 참여중' : '명 참여'}</span>
             </div>
           </div>
 
@@ -226,16 +228,17 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
               참여자
             </h2>
             <p className="text-sm text-slate-400">
-              현재 {activeParticipants.length}명이 함께하고 있어요
+              {isActive ? `현재 ${displayParticipants.length}명이 함께하고 있어요` : `총 ${displayParticipants.length}명이 참여했어요`}
             </p>
           </div>
         </div>
 
         <ParticipantGrid
-          participants={activeParticipants}
+          participants={displayParticipants}
           currentUserId={localUserId || undefined}
           onTaskUpdate={handleTaskUpdate}
           onLeave={handleLeave}
+          isSessionActive={isActive}
         />
       </div>
 

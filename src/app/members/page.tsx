@@ -1,4 +1,4 @@
-import { getMembers } from '@/lib/actions'
+import { getMemberStats } from '@/actions/member'
 import { MemberCard } from '@/components/member'
 import { Users, ArrowUpDown } from 'lucide-react'
 import Link from 'next/link'
@@ -9,7 +9,7 @@ interface MembersPageProps {
 }
 
 export default async function MembersPage({ searchParams }: MembersPageProps) {
-  const members = await getMembers()
+  const members = await getMemberStats()
   const sortBy = searchParams.sort || 'name'
 
   // Sort members based on query parameter
