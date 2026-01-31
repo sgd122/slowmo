@@ -7,6 +7,23 @@ export interface Member {
   session_count: number
   created_at: string
   updated_at: string
+  // GitHub OAuth fields
+  user_id: string | null
+  email: string | null
+  avatar_url: string | null
+  github_username: string | null
+  github_id: number | null
+}
+
+export interface AuthUser {
+  id: string
+  email: string | null
+  user_metadata: {
+    avatar_url?: string
+    full_name?: string
+    user_name?: string
+    provider_id?: string
+  }
 }
 
 export interface Session {
