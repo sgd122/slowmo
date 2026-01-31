@@ -6,7 +6,25 @@ import { revalidatePath } from 'next/cache'
 export async function createSession(title?: string) {
   const supabase = await createServerClient()
 
-  const { data, error } = await supabase
+  // 인증 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  // 사용자의 member 레코드 조회
+  const { data: member } = await supabase
+    .from('members')
+    .select()
+    .eq('user_id', user.id)
+    .single()
+
+  if (!member) {
+    throw new Error('멤버 정보를 찾을 수 없습니다.')
+  }
+
+  // 세션 생성
+  const { data: session, error } = await supabase
     .from('sessions')
     .insert({
       title: title || null,
@@ -19,8 +37,18 @@ export async function createSession(title?: string) {
 
   if (error) throw new Error(error.message)
 
+  // 세션 생성자 자동 참여
+  await supabase
+    .from('session_participants')
+    .insert({
+      session_id: session.id,
+      member_id: member.id,
+      join_time: new Date().toISOString(),
+      is_active: true
+    })
+
   revalidatePath('/')
-  return data
+  return session
 }
 
 export async function getActiveSession() {

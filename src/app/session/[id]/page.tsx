@@ -1,19 +1,22 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { getSession } from '@/actions/session'
-import { getMembers } from '@/actions/member'
+import { getCurrentMember } from '@/lib/auth'
 import { SessionDetailClient } from '@/components/session/SessionDetailClient'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 interface SessionPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function SessionPage({ params }: SessionPageProps) {
-  const session = await getSession(params.id)
-  const members = await getMembers()
+  const { id } = await params
+  const [session, currentMember] = await Promise.all([
+    getSession(id),
+    getCurrentMember()
+  ])
 
   if (!session) {
     notFound()
@@ -22,7 +25,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
   return (
     <div className="min-h-screen bg-slate-950">
       <Suspense fallback={<SessionDetailSkeleton />}>
-        <SessionDetailClient initialSession={session} existingMembers={members} />
+        <SessionDetailClient initialSession={session} currentMember={currentMember} />
       </Suspense>
     </div>
   )

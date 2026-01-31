@@ -2,17 +2,28 @@
 
 import { createServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { getOrCreateMember } from './member'
 
-export async function joinSession(
-  sessionId: string,
-  memberName: string,
-  nickname?: string
-) {
+export async function joinSession(sessionId: string) {
   const supabase = await createServerClient()
 
-  const member = await getOrCreateMember(memberName, nickname)
+  // 현재 인증된 사용자 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
 
+  // 사용자의 member 레코드 조회
+  const { data: member } = await supabase
+    .from('members')
+    .select()
+    .eq('user_id', user.id)
+    .single()
+
+  if (!member) {
+    throw new Error('멤버 정보를 찾을 수 없습니다.')
+  }
+
+  // 이미 참여중인지 확인
   const { data: existing } = await supabase
     .from('session_participants')
     .select()
@@ -21,6 +32,7 @@ export async function joinSession(
     .maybeSingle()
 
   if (existing) {
+    // 기존 참여 정보 업데이트 (재참여)
     const { data, error } = await supabase
       .from('session_participants')
       .update({
@@ -37,6 +49,7 @@ export async function joinSession(
     return data
   }
 
+  // 새로 참여
   const { data, error } = await supabase
     .from('session_participants')
     .insert({

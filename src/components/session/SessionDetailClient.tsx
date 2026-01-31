@@ -6,27 +6,23 @@ import { Calendar, Clock, Users, Power, Zap, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { SessionTimer } from './SessionTimer'
 import { ParticipantGrid } from './ParticipantGrid'
-import { JoinSessionForm } from './JoinSessionForm'
+import { JoinSessionButton } from './JoinSessionButton'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { useRealtime } from '@/hooks/useRealtime'
-import { useLocalUser } from '@/hooks/useLocalUser'
-import { joinSession, updateParticipantTask, leaveSession } from '@/actions/participant'
+import { updateParticipantTask, leaveSession } from '@/actions/participant'
 import { endSession } from '@/actions/session'
 import type { SessionWithParticipants, SessionParticipant, Member } from '@/types'
-import { cn } from '@/lib/utils/cn'
 
 interface SessionDetailClientProps {
   initialSession: SessionWithParticipants
-  existingMembers: Member[]
+  currentMember: Member | null
 }
 
-export function SessionDetailClient({ initialSession, existingMembers }: SessionDetailClientProps) {
+export function SessionDetailClient({ initialSession, currentMember }: SessionDetailClientProps) {
   const [session, setSession] = useState(initialSession)
   const [isEnding, setIsEnding] = useState(false)
   const router = useRouter()
-  const { user, saveUser, clearUser } = useLocalUser()
-  const localUserId = user?.memberId || null
 
   const handleParticipantChange = useCallback(
     (event: 'INSERT' | 'UPDATE' | 'DELETE', participant: SessionParticipant) => {
@@ -40,7 +36,6 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
           if (index === -1) participants.push(participant as any)
         } else if (event === 'UPDATE') {
           if (index !== -1) {
-            // 기존 member 정보 유지
             participants[index] = {
               ...participant,
               member: participants[index].member
@@ -59,19 +54,9 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
     onParticipantChange: handleParticipantChange,
   })
 
-  const currentParticipant = session.participants?.find(
-    (p) => p.member_id === localUserId && p.is_active
-  )
-
-  const handleJoin = async (memberId: string, name: string) => {
-    const participant = await joinSession(session.id, name)
-    saveUser({
-      memberId: participant.member_id,
-      memberName: name,
-      currentParticipantId: participant.id,
-    })
-    router.refresh()
-  }
+  const currentParticipant = currentMember
+    ? session.participants?.find((p) => p.member_id === currentMember.id && p.is_active)
+    : null
 
   const handleTaskUpdate = async (
     participantId: string,
@@ -83,9 +68,6 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
 
   const handleLeave = async (participantId: string) => {
     await leaveSession(participantId)
-    if (participantId === currentParticipant?.id) {
-      clearUser()
-    }
     router.refresh()
   }
 
@@ -103,7 +85,6 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
 
   const isActive = session.status === 'active'
   const activeParticipants = session.participants?.filter((p) => p.is_active) || []
-  // 완료된 세션은 모든 참여자 표시, 활성 세션은 활성 참여자만
   const displayParticipants = isActive ? activeParticipants : (session.participants || [])
 
   const date = new Date(session.date)
@@ -235,14 +216,14 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
 
         <ParticipantGrid
           participants={displayParticipants}
-          currentUserId={localUserId || undefined}
+          currentUserId={currentMember?.id}
           onTaskUpdate={handleTaskUpdate}
           onLeave={handleLeave}
           isSessionActive={isActive}
         />
       </div>
 
-      {/* Join Form */}
+      {/* Join Button */}
       {isActive && !currentParticipant && (
         <div className="space-y-6">
           <div className="relative">
@@ -256,24 +237,31 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
             </div>
           </div>
 
-          <JoinSessionForm
+          <JoinSessionButton
             sessionId={session.id}
-            existingMembers={existingMembers}
-            onJoin={handleJoin}
+            currentMember={currentMember}
           />
         </div>
       )}
 
       {/* Current User Status */}
-      {currentParticipant && (
+      {currentParticipant && currentMember && (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
-              <Zap className="h-6 w-6 text-emerald-400" />
-            </div>
+            {currentMember.avatar_url ? (
+              <img
+                src={currentMember.avatar_url}
+                alt={currentMember.name}
+                className="h-12 w-12 rounded-full"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
+                <Users className="h-6 w-6 text-emerald-400" />
+              </div>
+            )}
             <div>
               <p className="font-bold text-white">
-                {currentParticipant.member?.name || '회원'}님, 참여중입니다
+                {currentMember.github_username || currentMember.name}님, 참여중입니다
               </p>
               <p className="text-sm text-slate-400">
                 열심히 공부하고 계시네요! 화이팅!
