@@ -3,6 +3,29 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+export async function updateMemberName(name: string) {
+  const supabase = await createServerClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  if (!name.trim() || name.length > 50) {
+    throw new Error('이름은 1~50자여야 합니다.')
+  }
+
+  const { error } = await supabase
+    .from('members')
+    .update({ name: name.trim() })
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/profile')
+  revalidatePath('/members')
+}
+
 export async function getOrCreateMember(name: string, nickname?: string) {
   const supabase = await createServerClient()
 
