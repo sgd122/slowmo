@@ -9,69 +9,87 @@ const sizes = {
   lg: { icon: 'h-12 w-12', text: 'text-2xl' },
 }
 
+// 새로운 나무늘보 로고
+function SlothLogoSvg({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <defs>
+        <linearGradient id="logoGradient" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stopColor="#22d3ee" />
+          <stop offset="100%" stopColor="#3b82f6" />
+        </linearGradient>
+        <linearGradient id="laptopGradient" x1="20" y1="23" x2="30" y2="28">
+          <stop offset="0%" stopColor="#c084fc" />
+          <stop offset="100%" stopColor="#e879f9" />
+        </linearGradient>
+      </defs>
+
+      {/* 배경 원 */}
+      <circle cx="20" cy="20" r="19" fill="url(#logoGradient)" />
+      <circle
+        cx="20"
+        cy="20"
+        r="18"
+        className="fill-slate-800"
+        stroke="#e2e8f0"
+        strokeOpacity="0.1"
+      />
+
+      {/* 나뭇가지 */}
+      <path
+        d="M5 12C10 10, 25 10, 35 14"
+        stroke="#64748b"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+
+      {/* 나무늘보 몸통 */}
+      <path
+        d="M13 12.5C10 18, 12 28, 19 32"
+        stroke="#94a3b8"
+        strokeWidth="6"
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* 나무늘보 얼굴 */}
+      <circle cx="15" cy="18" r="5" fill="#cbd5e1" />
+      <path
+        d="M13 18.5C13.5 19.5, 16.5 19.5, 17 18.5"
+        stroke="#475569"
+        strokeWidth="1"
+        strokeLinecap="round"
+      />
+      <circle cx="14" cy="17.5" r="0.5" fill="#475569" />
+      <circle cx="16" cy="17.5" r="0.5" fill="#475569" />
+
+      {/* 노트북 */}
+      <rect
+        x="20"
+        y="23"
+        width="10"
+        height="6"
+        rx="1"
+        fill="url(#laptopGradient)"
+        stroke="#f8fafc"
+        strokeWidth="0.5"
+      />
+      <rect x="19" y="29" width="12" height="1.5" rx="0.5" fill="#94a3b8" />
+    </svg>
+  )
+}
+
 export function Logo({ size = 'md', showText = true }: LogoProps) {
   const s = sizes[size]
 
   return (
     <div className="flex items-center gap-3">
-      {/* 로고 아이콘: 느린 성장을 상징하는 달팽이 + 코드 */}
-      <div className={`${s.icon} relative`}>
-        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* 배경 원 */}
-          <circle
-            cx="20"
-            cy="20"
-            r="18"
-            className="fill-gradient-to-br from-cyan-500 to-blue-600"
-            fill="url(#logoGradient)"
-          />
-
-          {/* 달팽이 껍질 (소용돌이) - 느린 성장 상징 */}
-          <path
-            d="M20 12C24.4 12 28 15.6 28 20C28 22.2 27.1 24.2 25.7 25.7"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M20 16C22.2 16 24 17.8 24 20"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-
-          {/* 코드 브래킷 < > */}
-          <path
-            d="M14 17L10 20L14 23"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-          <path
-            d="M26 17L30 20L26 23"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-
-          {/* 중앙 점 (커서/포커스) */}
-          <circle cx="20" cy="20" r="2" fill="white" />
-
-          {/* 그라데이션 정의 */}
-          <defs>
-            <linearGradient id="logoGradient" x1="0" y1="0" x2="40" y2="40">
-              <stop offset="0%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <SlothLogoSvg className={s.icon} />
 
       {showText && (
         <span className={`${s.text} font-bold tracking-tight text-slate-100`}>
@@ -84,46 +102,5 @@ export function Logo({ size = 'md', showText = true }: LogoProps) {
 
 // 심플 버전 (아이콘만)
 export function LogoIcon({ className = 'h-10 w-10' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <circle cx="20" cy="20" r="18" fill="url(#logoGradientIcon)" />
-      <path
-        d="M20 12C24.4 12 28 15.6 28 20C28 22.2 27.1 24.2 25.7 25.7"
-        stroke="white"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M20 16C22.2 16 24 17.8 24 20"
-        stroke="white"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M14 17L10 20L14 23"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M26 17L30 20L26 23"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="20" cy="20" r="2" fill="white" />
-      <defs>
-        <linearGradient id="logoGradientIcon" x1="0" y1="0" x2="40" y2="40">
-          <stop offset="0%" stopColor="#06b6d4" />
-          <stop offset="100%" stopColor="#3b82f6" />
-        </linearGradient>
-      </defs>
-    </svg>
-  )
+  return <SlothLogoSvg className={className} />
 }
