@@ -39,7 +39,13 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
         } else if (event === 'INSERT') {
           if (index === -1) participants.push(participant as any)
         } else if (event === 'UPDATE') {
-          if (index !== -1) participants[index] = participant as any
+          if (index !== -1) {
+            // 기존 member 정보 유지
+            participants[index] = {
+              ...participant,
+              member: participants[index].member
+            } as any
+          }
         }
 
         return { ...prev, participants }
@@ -264,7 +270,7 @@ export function SessionDetailClient({ initialSession, existingMembers }: Session
             </div>
             <div>
               <p className="font-bold text-white">
-                {currentParticipant.member?.name}님, 참여중입니다
+                {currentParticipant.member?.name || '회원'}님, 참여중입니다
               </p>
               <p className="text-sm text-slate-400">
                 열심히 공부하고 계시네요! 화이팅!

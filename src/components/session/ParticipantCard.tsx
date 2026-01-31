@@ -25,7 +25,7 @@ export function ParticipantCard({
     minute: '2-digit'
   })
 
-  const displayName = participant.member.nickname || participant.member.name
+  const displayName = participant.member?.nickname || participant.member?.name || '참여자'
 
   return (
     <Card className={cn(
