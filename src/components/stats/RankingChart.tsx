@@ -64,6 +64,11 @@ export function RankingChart({ data, title, valueLabel, color }: RankingChartPro
 
       {/* Chart */}
       <div className="h-[400px]">
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-500 text-lg">아직 데이터가 없습니다</p>
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
@@ -97,6 +102,7 @@ export function RankingChart({ data, title, valueLabel, color }: RankingChartPro
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   )

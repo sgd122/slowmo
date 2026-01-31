@@ -18,6 +18,7 @@ export default async function StatsPage() {
   // Prepare participation ranking (top 5 by session count)
   const participationRanking = members
     .filter(m => m.session_count > 0)
+    .sort((a, b) => b.session_count - a.session_count)
     .slice(0, 5)
     .map(m => ({
       name: m.nickname || m.name,

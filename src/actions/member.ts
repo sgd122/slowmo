@@ -51,11 +51,47 @@ export async function getMembers() {
 export async function getMemberStats() {
   const supabase = await createServerClient()
 
-  const { data, error } = await supabase
+  // Get all members with their participation data calculated from session_participants
+  const { data: members, error: membersError } = await supabase
     .from('members')
-    .select()
-    .order('total_study_minutes', { ascending: false })
+    .select('id, name, nickname')
 
-  if (error) throw new Error(error.message)
-  return data || []
+  if (membersError) throw new Error(membersError.message)
+
+  // Get participation stats from session_participants
+  const { data: participations, error: partError } = await supabase
+    .from('session_participants')
+    .select('member_id, study_minutes, is_active, join_time')
+
+  if (partError) throw new Error(partError.message)
+
+  // Calculate stats for each member
+  const memberStats = (members || []).map(member => {
+    const memberParticipations = (participations || []).filter(p => p.member_id === member.id)
+    const sessionCount = memberParticipations.length
+
+    // Calculate total study minutes (including active sessions)
+    const totalStudyMinutes = memberParticipations.reduce((sum, p) => {
+      if (p.study_minutes) {
+        return sum + p.study_minutes
+      }
+      // For active sessions, calculate time from join_time to now
+      if (p.is_active && p.join_time) {
+        const now = new Date()
+        const joinTime = new Date(p.join_time)
+        const activeMinutes = Math.floor((now.getTime() - joinTime.getTime()) / 60000)
+        return sum + activeMinutes
+      }
+      return sum
+    }, 0)
+
+    return {
+      ...member,
+      session_count: sessionCount,
+      total_study_minutes: totalStudyMinutes
+    }
+  })
+
+  // Sort by total study minutes descending
+  return memberStats.sort((a, b) => b.total_study_minutes - a.total_study_minutes)
 }
