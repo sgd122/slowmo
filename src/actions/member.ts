@@ -54,7 +54,7 @@ export async function getMemberStats() {
   // Get all members with their participation data calculated from session_participants
   const { data: members, error: membersError } = await supabase
     .from('members')
-    .select('id, name, nickname')
+    .select('*')
 
   if (membersError) throw new Error(membersError.message)
 
