@@ -94,6 +94,34 @@ export async function getSession(sessionId: string) {
 export async function endSession(sessionId: string) {
   const supabase = await createServerClient()
 
+  // 인증 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  // 현재 사용자가 세션 참여자인지 확인
+  const { data: member } = await supabase
+    .from('members')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!member) {
+    throw new Error('멤버 정보를 찾을 수 없습니다.')
+  }
+
+  const { data: participant } = await supabase
+    .from('session_participants')
+    .select('id')
+    .eq('session_id', sessionId)
+    .eq('member_id', member.id)
+    .maybeSingle()
+
+  if (!participant) {
+    throw new Error('세션 참여자만 세션을 종료할 수 있습니다.')
+  }
+
   await supabase
     .from('session_participants')
     .update({

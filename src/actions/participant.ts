@@ -74,6 +74,33 @@ export async function updateParticipantTask(
 ) {
   const supabase = await createServerClient()
 
+  // 인증 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  // 소유권 확인
+  const { data: member } = await supabase
+    .from('members')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!member) {
+    throw new Error('멤버 정보를 찾을 수 없습니다.')
+  }
+
+  const { data: participant } = await supabase
+    .from('session_participants')
+    .select('member_id')
+    .eq('id', participantId)
+    .single()
+
+  if (!participant || participant.member_id !== member.id) {
+    throw new Error('본인의 참여 정보만 수정할 수 있습니다.')
+  }
+
   const maxLength = field === 'today_task' ? 500 : 1000
   if (value.length > maxLength) {
     throw new Error(`${maxLength}자를 초과할 수 없습니다.`)
@@ -90,6 +117,23 @@ export async function updateParticipantTask(
 export async function leaveSession(participantId: string) {
   const supabase = await createServerClient()
 
+  // 인증 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  // 소유권 확인
+  const { data: member } = await supabase
+    .from('members')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!member) {
+    throw new Error('멤버 정보를 찾을 수 없습니다.')
+  }
+
   const { data: participant } = await supabase
     .from('session_participants')
     .select('join_time, member_id, session_id')
@@ -97,6 +141,10 @@ export async function leaveSession(participantId: string) {
     .single()
 
   if (!participant) throw new Error('참여 정보를 찾을 수 없습니다.')
+
+  if (participant.member_id !== member.id) {
+    throw new Error('본인의 참여 정보만 수정할 수 있습니다.')
+  }
 
   const leaveTime = new Date()
   const joinTime = new Date(participant.join_time)
