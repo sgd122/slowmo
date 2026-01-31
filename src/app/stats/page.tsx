@@ -28,6 +28,7 @@ export default async function StatsPage() {
   // Prepare study time ranking (top 5 by total study time)
   const studyTimeRanking = members
     .filter(m => m.total_study_minutes > 0)
+    .sort((a, b) => b.total_study_minutes - a.total_study_minutes)
     .slice(0, 5)
     .map(m => ({
       name: m.nickname || m.name,

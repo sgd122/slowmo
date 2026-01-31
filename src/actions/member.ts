@@ -72,15 +72,16 @@ export async function getMemberStats() {
 
     // Calculate total study minutes (including active sessions)
     const totalStudyMinutes = memberParticipations.reduce((sum, p) => {
-      if (p.study_minutes) {
+      // For completed sessions with recorded study_minutes
+      if (p.study_minutes && p.study_minutes > 0) {
         return sum + p.study_minutes
       }
-      // For active sessions, calculate time from join_time to now
-      if (p.is_active && p.join_time) {
+      // For active sessions OR sessions without study_minutes, calculate from join_time
+      if (p.join_time) {
         const now = new Date()
         const joinTime = new Date(p.join_time)
-        const activeMinutes = Math.floor((now.getTime() - joinTime.getTime()) / 60000)
-        return sum + activeMinutes
+        const calculatedMinutes = Math.floor((now.getTime() - joinTime.getTime()) / 60000)
+        return sum + Math.max(0, calculatedMinutes)
       }
       return sum
     }, 0)
