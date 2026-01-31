@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/Badge'
 import { TaskEditor } from './TaskEditor'
 import { User, Clock, LogOut, Edit3, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
+import Image from 'next/image'
 import type { SessionParticipant, Member } from '@/types'
 
 interface ParticipantCardProps {
@@ -27,7 +28,8 @@ export function ParticipantCard({
     minute: '2-digit'
   })
 
-  const displayName = participant.member?.nickname || participant.member?.name || '참여자'
+  const member = participant.member
+  const displayName = member?.github_username || member?.nickname || member?.name || '참여자'
 
   return (
     <Card className={cn(
@@ -37,9 +39,19 @@ export function ParticipantCard({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-lg shadow-md">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
+            {member?.avatar_url ? (
+              <Image
+                src={member.avatar_url}
+                alt={displayName}
+                width={48}
+                height={48}
+                className="rounded-full"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-lg shadow-md">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
 
             <div className="space-y-1">
               <CardTitle className="text-lg">{displayName}</CardTitle>

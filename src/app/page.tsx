@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { ArrowRight, Clock, History, Zap } from 'lucide-react'
 import { getActiveSession, getSessionHistory } from '@/actions/session'
+import { getUser } from '@/lib/auth'
 import { SessionCard } from '@/components/session/SessionCard'
 import { CreateSessionButton } from '@/components/home/CreateSessionButton'
 import { RecentSessions } from '@/components/home/RecentSessions'
@@ -90,7 +91,11 @@ async function ActiveSessionCount() {
 }
 
 async function ActiveSessionSection() {
-  const session = await getActiveSession()
+  const [session, user] = await Promise.all([
+    getActiveSession(),
+    getUser()
+  ])
+  const isLoggedIn = !!user
 
   if (session) {
     const participantCount = session.participants?.length || 0
@@ -136,7 +141,7 @@ async function ActiveSessionSection() {
     )
   }
 
-  return <CreateSessionButton />
+  return <CreateSessionButton isLoggedIn={isLoggedIn} />
 }
 
 function SessionSkeleton() {

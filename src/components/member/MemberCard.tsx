@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/Card'
-import { Clock, Calendar } from 'lucide-react'
+import { Clock, Calendar, User } from 'lucide-react'
+import Image from 'next/image'
 import type { Member } from '@/types'
 
 interface MemberCardProps {
@@ -18,9 +19,19 @@ export function MemberCard({ member }: MemberCardProps) {
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <div className="shrink-0">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-2 ring-violet-400/30">
-              {initial}
-            </div>
+            {member.avatar_url ? (
+              <Image
+                src={member.avatar_url}
+                alt={displayName}
+                width={56}
+                height={56}
+                className="rounded-full ring-2 ring-violet-400/30"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-2 ring-violet-400/30">
+                {initial}
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -30,9 +41,9 @@ export function MemberCard({ member }: MemberCardProps) {
               <h3 className="text-lg font-bold text-white truncate">
                 {displayName}
               </h3>
-              {member.nickname && (
+              {member.github_username && (
                 <p className="text-sm text-slate-400 truncate">
-                  {member.name}
+                  @{member.github_username}
                 </p>
               )}
             </div>

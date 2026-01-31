@@ -21,7 +21,7 @@ export default async function StatsPage() {
     .sort((a, b) => b.session_count - a.session_count)
     .slice(0, 5)
     .map(m => ({
-      name: m.nickname || m.name,
+      name: m.github_username || m.nickname || m.name,
       value: m.session_count
     }))
 
@@ -31,7 +31,7 @@ export default async function StatsPage() {
     .sort((a, b) => b.total_study_minutes - a.total_study_minutes)
     .slice(0, 5)
     .map(m => ({
-      name: m.nickname || m.name,
+      name: m.github_username || m.nickname || m.name,
       hours: Number((m.total_study_minutes / 60).toFixed(1))
     }))
 

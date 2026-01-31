@@ -2,17 +2,36 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle, LogIn } from 'lucide-react'
+import Link from 'next/link'
 import { CreateSessionModal } from '@/components/session/CreateSessionModal'
 import { createSession } from '@/actions/session'
 
-export function CreateSessionButton() {
+interface CreateSessionButtonProps {
+  isLoggedIn: boolean
+}
+
+export function CreateSessionButton({ isLoggedIn }: CreateSessionButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const router = useRouter()
 
   const handleCreate = async (title: string | null) => {
-    const session = await createSession(title || undefined)
-    router.push(`/session/${session.id}`)
+    try {
+      const session = await createSession(title || undefined)
+      router.push(`/session/${session.id}`)
+    } catch (error) {
+      if (error instanceof Error && error.message === '로그인이 필요합니다.') {
+        router.push('/login')
+      } else {
+        alert(error instanceof Error ? error.message : '세션 생성에 실패했습니다.')
+      }
+    }
+  }
+
+  const handleClick = () => {
+    if (isLoggedIn) {
+      setIsModalOpen(true)
+    }
   }
 
   return (
@@ -31,12 +50,23 @@ export function CreateSessionButton() {
               지금 바로 공부 세션을 시작하세요
             </p>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="rounded-lg bg-cyan-500 px-8 py-3 font-bold text-white transition-all hover:bg-cyan-400 active:scale-95"
-          >
-            시작하기
-          </button>
+
+          {isLoggedIn ? (
+            <button
+              onClick={handleClick}
+              className="rounded-lg bg-cyan-500 px-8 py-3 font-bold text-white transition-all hover:bg-cyan-400 active:scale-95"
+            >
+              시작하기
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-2 rounded-lg bg-slate-700 px-8 py-3 font-bold text-white transition-all hover:bg-slate-600 active:scale-95"
+            >
+              <LogIn className="h-4 w-4" />
+              로그인 후 시작하기
+            </Link>
+          )}
         </div>
       </div>
 
