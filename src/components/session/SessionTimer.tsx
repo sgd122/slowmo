@@ -39,20 +39,20 @@ export function SessionTimer({ startTime, maxHours = 24, onExpire }: SessionTime
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="flex items-center gap-2 text-slate-500">
+      <div className="flex items-center gap-2 text-slate-300">
         <Clock className="h-4 w-4" />
         <span className="text-sm font-medium">Session Time</span>
       </div>
 
       <div className={cn(
         "font-mono text-5xl font-bold tabular-nums tracking-tight transition-colors",
-        isExpired ? "text-red-600" : "text-slate-900"
+        isExpired ? "text-red-400" : "text-white"
       )}>
         {formatTime(hours)}:{formatTime(minutes)}:{formatTime(seconds)}
       </div>
 
       {isExpired && (
-        <div className="text-sm font-medium text-red-600 animate-pulse">
+        <div className="text-sm font-medium text-red-400 animate-pulse">
           Session time expired
         </div>
       )}
