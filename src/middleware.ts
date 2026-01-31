@@ -29,8 +29,8 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 세션 갱신
-  await supabase.auth.getUser()
+  // 세션 갱신 (한 번만 호출)
+  const { data: { user } } = await supabase.auth.getUser()
 
   // 로그인 필수 경로 (프로필만)
   const protectedPaths = ['/profile']
@@ -38,23 +38,17 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   )
 
-  if (isProtectedPath) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
+  if (isProtectedPath && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
   // 이미 로그인한 사용자가 로그인 페이지 접근 시 홈으로 리다이렉트
-  if (request.nextUrl.pathname === '/login') {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/'
-      return NextResponse.redirect(url)
-    }
+  if (request.nextUrl.pathname === '/login' && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse

@@ -74,32 +74,30 @@ export async function getMembers() {
 export async function getMemberStats() {
   const supabase = await createServerClient()
 
-  // Get all members with their participation data calculated from session_participants
+  // 단일 쿼리로 멤버와 참여 정보를 함께 조회
   const { data: members, error: membersError } = await supabase
     .from('members')
-    .select('*')
+    .select(`
+      *,
+      participations:session_participants(
+        study_minutes,
+        is_active,
+        join_time
+      )
+    `)
 
   if (membersError) throw new Error(membersError.message)
 
-  // Get participation stats from session_participants
-  const { data: participations, error: partError } = await supabase
-    .from('session_participants')
-    .select('member_id, study_minutes, is_active, join_time')
-
-  if (partError) throw new Error(partError.message)
-
-  // Calculate stats for each member
+  // 통계 계산
   const memberStats = (members || []).map(member => {
-    const memberParticipations = (participations || []).filter(p => p.member_id === member.id)
-    const sessionCount = memberParticipations.length
+    const participations = member.participations || []
+    const sessionCount = participations.length
 
-    // Calculate total study minutes (including active sessions)
-    const totalStudyMinutes = memberParticipations.reduce((sum, p) => {
-      // For completed sessions with recorded study_minutes
+    // 총 공부 시간 계산 (활성 세션 포함)
+    const totalStudyMinutes = participations.reduce((sum: number, p: { study_minutes: number | null, is_active: boolean, join_time: string | null }) => {
       if (p.study_minutes && p.study_minutes > 0) {
         return sum + p.study_minutes
       }
-      // For active sessions OR sessions without study_minutes, calculate from join_time
       if (p.join_time) {
         const now = new Date()
         const joinTime = new Date(p.join_time)
@@ -109,13 +107,14 @@ export async function getMemberStats() {
       return sum
     }, 0)
 
+    // participations 필드 제거하고 반환
+    const { participations: _, ...memberData } = member
     return {
-      ...member,
+      ...memberData,
       session_count: sessionCount,
       total_study_minutes: totalStudyMinutes
     }
   })
 
-  // Sort by total study minutes descending
   return memberStats.sort((a, b) => b.total_study_minutes - a.total_study_minutes)
 }
