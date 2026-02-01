@@ -42,3 +42,4 @@ CLAUDE.local.MD
 
 # Claude Code
 .claude/settings.local.json
+.serena/
