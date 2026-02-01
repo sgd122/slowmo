@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { getSessionHistory } from '@/actions/session'
 import { SessionCard } from '@/components/session/SessionCard'
+import type { SessionWithParticipants } from '@/types'
 
-export async function RecentSessions() {
-  const { sessions } = await getSessionHistory(1, 3)
+interface RecentSessionsProps {
+  sessions: SessionWithParticipants[]
+}
 
+export function RecentSessions({ sessions }: RecentSessionsProps) {
   if (sessions.length === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center rounded-xl border-2 border-dashed border-slate-800 bg-slate-900/30 p-8">

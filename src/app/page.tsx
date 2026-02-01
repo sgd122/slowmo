@@ -1,14 +1,22 @@
 import Link from 'next/link'
-import { Suspense } from 'react'
-import { ArrowRight, Clock, History, Zap } from 'lucide-react'
+import { ArrowRight, History, Zap } from 'lucide-react'
 import { getActiveSession, getSessionHistory } from '@/actions/session'
 import { getUser } from '@/lib/auth'
 import { SessionCard } from '@/components/session/SessionCard'
 import { CreateSessionButton } from '@/components/home/CreateSessionButton'
 import { RecentSessions } from '@/components/home/RecentSessions'
-import { Skeleton } from '@/components/ui/Skeleton'
 
 export default async function HomePage() {
+  // 모든 데이터를 서버에서 병렬로 fetch (SSR)
+  const [activeSession, user, { sessions: recentSessions }] = await Promise.all([
+    getActiveSession(),
+    getUser(),
+    getSessionHistory(1, 3)
+  ])
+
+  const isLoggedIn = !!user
+  const activeSessionCount = activeSession ? 1 : 0
+
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Hero Section */}
@@ -35,9 +43,7 @@ export default async function HomePage() {
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-white">
-                    <Suspense fallback="--">
-                      <ActiveSessionCount />
-                    </Suspense>
+                    {activeSessionCount}
                   </span>
                   <span className="text-sm font-medium uppercase tracking-wide text-slate-500">
                     활성 세션
@@ -51,9 +57,7 @@ export default async function HomePage() {
 
       {/* Active Session or Create CTA */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <Suspense fallback={<SessionSkeleton />}>
-          <ActiveSessionSection />
-        </Suspense>
+        <ActiveSessionSection session={activeSession} isLoggedIn={isLoggedIn} />
       </section>
 
       {/* Recent Sessions */}
@@ -76,27 +80,19 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <Suspense fallback={<RecentSessionsSkeleton />}>
-            <RecentSessions />
-          </Suspense>
+          <RecentSessions sessions={recentSessions} />
         </div>
       </section>
     </div>
   )
 }
 
-async function ActiveSessionCount() {
-  const session = await getActiveSession()
-  return session ? '1' : '0'
+interface ActiveSessionSectionProps {
+  session: Awaited<ReturnType<typeof getActiveSession>>
+  isLoggedIn: boolean
 }
 
-async function ActiveSessionSection() {
-  const [session, user] = await Promise.all([
-    getActiveSession(),
-    getUser()
-  ])
-  const isLoggedIn = !!user
-
+function ActiveSessionSection({ session, isLoggedIn }: ActiveSessionSectionProps) {
   if (session) {
     const participantCount = session.participants?.length || 0
     return (
@@ -142,23 +138,4 @@ async function ActiveSessionSection() {
   }
 
   return <CreateSessionButton isLoggedIn={isLoggedIn} />
-}
-
-function SessionSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-48 w-full" />
-    </div>
-  )
-}
-
-function RecentSessionsSkeleton() {
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Skeleton className="h-40" />
-      <Skeleton className="h-40" />
-      <Skeleton className="h-40" />
-    </div>
-  )
 }
