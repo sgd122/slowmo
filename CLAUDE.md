@@ -9,10 +9,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start development server (localhost:3000)
-npm run build    # Production build
-npm run lint     # ESLint check
-npm run start    # Start production server
+pnpm dev      # Start development server (localhost:3000)
+pnpm build    # Production build
+pnpm lint     # ESLint check
+pnpm start    # Start production server
 ```
 
 ## Architecture
