@@ -7,7 +7,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:auth": "playwright test --project=auth-setup",
+    "test:e2e:authenticated": "playwright test --project=authenticated",
+    "test:e2e:all": "playwright test --project=chromium --project=authenticated",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
   },
   "keywords": [],
   "author": "",
@@ -35,5 +41,8 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1"
   }
 }
