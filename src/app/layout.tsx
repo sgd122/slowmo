@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header, Footer } from "@/components/layout";
+import { Agentation } from "agentation";
 
 export const metadata: Metadata = {
   title: "나태한 모각코",
@@ -18,6 +19,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>
   );
