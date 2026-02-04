@@ -56,6 +56,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // 인증이 필요한 경로만 middleware 실행 (Edge Request 절약)
+    '/profile/:path*',
+    '/login',
+    '/api/:path*',
   ],
 }

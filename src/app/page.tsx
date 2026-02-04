@@ -6,6 +6,9 @@ import { SessionCard } from '@/components/session/SessionCard'
 import { CreateSessionButton } from '@/components/home/CreateSessionButton'
 import { RecentSessions } from '@/components/home/RecentSessions'
 
+// ISR: 30초마다 재검증 (Edge Request 절약)
+export const revalidate = 30
+
 export default async function HomePage() {
   // 모든 데이터를 서버에서 병렬로 fetch (SSR)
   const [activeSession, user, { sessions: recentSessions }] = await Promise.all([

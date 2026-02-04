@@ -5,6 +5,9 @@ import { getCurrentMember } from '@/lib/auth'
 import { SessionDetailClient } from '@/components/session/SessionDetailClient'
 import { Skeleton } from '@/components/ui/Skeleton'
 
+// ISR: 10초마다 재검증 (실시간 느낌 유지하면서 Edge Request 절약)
+export const revalidate = 10
+
 interface SessionPageProps {
   params: Promise<{
     id: string
