@@ -2,6 +2,9 @@ import { StatsSummary, RankingChart, StudyTimeChart } from '@/components/stats'
 import { getMemberStats } from '@/actions/member'
 import { getSessionHistory } from '@/actions/session'
 
+// ISR: 60초마다 재검증 (통계는 집계 데이터라 자주 변경되지 않음)
+export const revalidate = 60
+
 export default async function StatsPage() {
   // Fetch real data from database
   const members = await getMemberStats()

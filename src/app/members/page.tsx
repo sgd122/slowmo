@@ -4,6 +4,9 @@ import { Users, ArrowUpDown } from 'lucide-react'
 import Link from 'next/link'
 import type { Member } from '@/types'
 
+// ISR: 60초마다 재검증 (멤버 통계는 자주 변경되지 않음)
+export const revalidate = 60
+
 interface MembersPageProps {
   searchParams: { sort?: string }
 }

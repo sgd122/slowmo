@@ -48,6 +48,7 @@ export async function checkGitHubOrgMembership(
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/vnd.github+json',
         },
+        next: { revalidate: 3600 }, // 1시간 캐시 (조직 멤버십은 자주 변경되지 않음)
       }
     )
 
@@ -65,6 +66,7 @@ export async function getUserGitHubOrgs(accessToken: string): Promise<string[]> 
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github+json',
       },
+      next: { revalidate: 3600 }, // 1시간 캐시 (조직 목록은 자주 변경되지 않음)
     })
 
     if (!response.ok) {

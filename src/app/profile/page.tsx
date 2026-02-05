@@ -6,6 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { EditableName } from '@/components/profile/EditableName'
 
+// ISR: 30초마다 재검증 (프로필은 개인화되지만 자주 변경되지 않음)
+export const revalidate = 30
+
 export default async function ProfilePage() {
   const member = await getCurrentMember()
 

@@ -3,6 +3,9 @@ import { SessionCard } from '@/components/session/SessionCard'
 import { ChevronLeft, ChevronRight, History as HistoryIcon } from 'lucide-react'
 import Link from 'next/link'
 
+// ISR: 60초마다 재검증 (히스토리는 자주 변경되지 않음)
+export const revalidate = 60
+
 interface HistoryPageProps {
   searchParams: { page?: string }
 }

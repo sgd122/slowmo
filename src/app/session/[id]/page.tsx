@@ -5,8 +5,8 @@ import { getCurrentMember } from '@/lib/auth'
 import { SessionDetailClient } from '@/components/session/SessionDetailClient'
 import { Skeleton } from '@/components/ui/Skeleton'
 
-// ISR: 10초마다 재검증 (실시간 느낌 유지하면서 Edge Request 절약)
-export const revalidate = 10
+// ISR: 30초마다 재검증 (Supabase Realtime이 실시간 업데이트 담당)
+export const revalidate = 30
 
 interface SessionPageProps {
   params: Promise<{
